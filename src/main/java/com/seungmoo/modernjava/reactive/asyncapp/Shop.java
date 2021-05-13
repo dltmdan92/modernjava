@@ -1,8 +1,11 @@
 package com.seungmoo.modernjava.reactive.asyncapp;
 
+import lombok.Getter;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
+@Getter
 public class Shop {
 
     private final String shopName;
