@@ -1,5 +1,7 @@
 package com.seungmoo.modernjava.reactive.asyncapp;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -7,21 +9,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class NonBlockingApp {
+    private static final String SHOP_NAME = "BestPrice";
 
     public static void main(String[] args) {
 
         long start = System.nanoTime();
         findPricesWithFactory("myPhone27S");
         long duration = (System.nanoTime() - start) / 1_000_000;
-        System.out.println("Done in " + duration + " msecs");
-
+        log.info("Done in " + duration + " msecs");
     }
 
     // Shop 12개 - 2초 걸림
     // parallelStream --> ForkJoinPool의 객체를 사용 (Runtime.getRuntime().availableProcessors() 만큼만 사용)
     public static List<String> findPrices(String product) {
-        List<Shop> shops = List.of(new Shop("BestPrice"),
+
+        List<Shop> shops = List.of(new Shop(SHOP_NAME),
                 new Shop("LetsSaveBig"),
                 new Shop("MyFavoriteShop"),
                 new Shop("BuyItAll"),
@@ -47,7 +51,7 @@ public class NonBlockingApp {
     // 이 방식은 Shop의 갯수가 늘어날 수 록, 유동적으로 쓰레드풀을 설정할 수 있어서 빛을 발한다.
     public static List<String> findPricesWithFactory(String product) {
 
-        List<Shop> shops = List.of(new Shop("BestPrice"),
+        List<Shop> shops = List.of(new Shop(SHOP_NAME),
                 new Shop("LetsSaveBig"),
                 new Shop("MyFavoriteShop"),
                 new Shop("BuyItAll"),
@@ -64,6 +68,9 @@ public class NonBlockingApp {
             @Override
             public Thread newThread(Runnable r) {
                 Thread thread = new Thread(r);
+                // 자바에서 일반 스레드가 실행 중이면 자바 프로그램은 종료되지 않는다.
+                // 따라서 어떤 이벤트를 한없이 기다리면서 종료되지 않는 일반 스레드가 있으면 문제가 될 수 있음!!
+                // 반면 데몬스레드는 자바 프로그램이 종료될 때 강제로 실행이 종료될 수 있음. (두 쓰레드의 성능은 같음)
                 thread.setDaemon(true); // 프로그램 종료를 방해하지 않는 데몬 스레드를 사용
                 return thread;
             }
