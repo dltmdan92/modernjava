@@ -1,6 +1,9 @@
 package com.seungmoo.modernjava.reactive;
 
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CFComplete {
 

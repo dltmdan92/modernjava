@@ -1,6 +1,5 @@
 package com.seungmoo.modernjava;
 
-import com.seungmoo.modernjava.thread.ExecutorServiceExample;
 import com.seungmoo.modernjava.thread.ScheduledExecutorServiceExample;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;

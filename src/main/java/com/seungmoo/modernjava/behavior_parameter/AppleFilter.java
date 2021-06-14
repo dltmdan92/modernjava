@@ -1,10 +1,8 @@
 package com.seungmoo.modernjava.behavior_parameter;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 
 import static java.util.Comparator.comparing;
 
