@@ -2,8 +2,10 @@ package com.seungmoo.modernjava.reactive.temp_app;
 
 import io.reactivex.Observable;
 
+import java.util.Arrays;
 import java.util.concurrent.Flow;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -14,8 +16,11 @@ public class Main {
         //getCelsiusTemperatures("New York").subscribe(new TempSubscriber());
 
         // 매 초마다 뉴욕의 온도 보고를 방출하는 Observable 만들기
-        Observable<TempInfo> observable = getTemperature("New York");
+        //Observable<TempInfo> observable = getTemperature("New York");
         // 단순 Observer로 이 Observable에 가입해서 온도 출력하기
+        //observable.blockingSubscribe(new TempObserver());
+
+        Observable<TempInfo> observable = getCelsiusTemperatures("New York", "Chicago", "San Francisco");
         observable.blockingSubscribe(new TempObserver());
     }
 
@@ -67,4 +72,42 @@ public class Main {
         );
     }
 
+    /**
+     * RxJava 응용
+     * Observable의 map, merge 메서드를 활용해서 섭씨를 화씨로 바꿔보자
+     * @param town
+     * @return
+     */
+    public static Observable<TempInfo> getCelsiusTemperature(String town) {
+        // getTemperature가 return 하는 Observable을 받아 화씨를 섭씨로 바꾼 다음
+        // 매 초 한 개씩 온도를 다시 방출하는 "또 다른 Observable" 을 반환한다.
+        return getTemperature(town)
+                .map(temp -> new TempInfo(temp.getTown(), (temp.getTemp() - 32) * 5 / 9));
+    }
+
+    /**
+     * 영하 온도만 거르기
+     * @param town
+     * @return
+     */
+    public static Observable<TempInfo> getNegativeTemperature(String town) {
+        return getTemperature(town)
+                .filter(temp -> temp.getTemp() < 0);
+    }
+
+    /**
+     * 한 개 이상 도시의 온도 보고를 합친다.
+     * 이 메서드는 Observable의 Iterable을 인수로 받아
+     * 마치 한 개의 Observable처럼 동작하도록 결과를 합친다.
+     *
+     * Observable은 전달된 Iterable에 포함된 모든 Observable의 이벤트 발행물을 시간 순서대로 방출한다.
+     *
+     * @param towns
+     * @return
+     */
+    public static Observable<TempInfo> getCelsiusTemperatures(String... towns) {
+        return Observable.merge(Arrays.stream(towns)
+                .map(Main::getCelsiusTemperature)
+                .collect(Collectors.toList()));
+    }
 }
